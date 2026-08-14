@@ -45,4 +45,48 @@ class ApiService {
 
   }
 
+  Future<void> getComments(String videoId) async {
+  
+    var response = await http.get(
+      
+      Uri.parse('$baseUrl/comments/$videoId'),
+
+    );
+
+    print("Response de getComment de Api Service: ${response.body}");
+    
+   final res = jsonDecode(response.body);
+
+    print("Response.body de getComment de Api Service: $res");
+
+
+    return res;
+
+  }
+
+  Future<dynamic> addComment(String videoId, String text) async {
+  
+    var response = await http.post(
+      
+      Uri.parse('$baseUrl/comments/'),
+
+      body: {
+
+        "video_id": videoId,
+
+        "comment": text,
+      },
+    );
+
+    print("Response de addComment de Api Service: ${response.body}");
+    
+   final res = jsonDecode(response.body);
+
+    print("Response.body de addComment de Api Service: $res['success']");
+
+
+    return res;
+
+  }
+
 }

@@ -21,6 +21,8 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
   late bool isLiked;
   
   late int likeCount;
+
+  int commentCount = 0;
   
   
   @override
@@ -100,6 +102,24 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
 
   }
 
+  void showComments(String videoId) async {
+   
+    showModalBottomSheet(
+   
+      context: context,
+    
+      isScrollControlled: true,
+    
+      builder: (_) {
+      
+        return const CommentSheet(video: videoId);
+    
+      },
+  
+    );
+  
+  }
+
   void _togglePlayPause() {
    
     if (_controller.value.isPlaying){
@@ -163,11 +183,154 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
                   "$likeCount",
                   style: const TextStyle(color: Colors.white),
                 ),
+                SizedBox.shrink(),
+
+                IconButton(
+
+                  icon: const Icon(
+
+                    Icons.comment,
+
+                    color: Colors.white,
+
+                    size: 36,
+
+                  ),
+
+                  onPressed: () {
+
+                    showComments(widget.video['id']);
+
+                  },
+                ),
+
+                Text(
+                  "$commentCount",
+                  style: const TextStyle(color: Colors.white),
+                ),
               ],
             ),
           ),
         ],
       ),
+    );
+
+  }
+
+}
+
+class CommentSheet extends StatelessWidget {
+  final String video;
+  const CommentSheet({super.key, required this.video});
+
+  @override
+  
+  Widget build(BuildContext context) {
+    final api_service  = ApiService();
+
+    final comments = api_service.getComments(video);
+    return SafeArea(
+     
+      child: SizedBox(
+     
+        height: MediaQuery.of(context).size.height * .7,
+     
+        child: Column(
+       
+          children: [
+       
+            const Padding(
+        
+              padding: EdgeInsets.all(16),
+         
+              child: Text(
+              
+                "Commentaires",
+              
+                style: TextStyle(
+              
+                  fontSize: 18,
+              
+                  fontWeight: FontWeight.bold,
+              
+                ),
+             
+              ),
+           
+            ),
+
+            const Divider(),
+
+            Expanded(
+              
+              child: ListView.builder(
+
+                itemCount: 10,
+
+                itemBuilder: (_, index) {
+
+                  return const ListTile(
+
+                    leading: CircleAvatar(),
+
+                    title: Text("Utilisateur"),
+
+                    subtitle: Text("Très belle vidéo !"),
+
+                  );
+
+                },
+
+              ),
+
+            ),
+
+            Padding(
+
+              padding: const EdgeInsets.all(12),
+
+              child: Row(
+
+                children: [
+
+                  Expanded(
+
+                    child: TextField(
+
+                      decoration: InputDecoration(
+
+                        hintText: "Ajouter un commentaire...",
+
+                        border: OutlineInputBorder(),
+
+                      ),
+
+                    ),
+
+                  ),
+
+                  IconButton(
+
+                    icon: const Icon(Icons.send),
+
+                    onPressed: () {
+
+                    },
+
+                  ),
+
+                ],
+
+              ),
+
+            )
+
+          ],
+
+        ),
+
+      ),
+
     );
 
   }
