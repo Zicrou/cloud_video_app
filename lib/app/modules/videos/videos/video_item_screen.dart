@@ -1,4 +1,6 @@
 import 'package:cloud_video_app/app/data/services/api_service.dart';
+import 'package:cloud_video_app/app/data/services/comment_service.dart';
+import 'package:cloud_video_app/app/modules/videos/widgets/comment_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
@@ -23,6 +25,8 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
   late int likeCount;
 
   int commentCount = 0;
+
+  // final comment_sheet = CommentBottomSheet();
   
   
   @override
@@ -53,6 +57,8 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
     likeCount = widget.video['likes_count'];
 
     isLiked = false;
+
+    // CommentService().addComment(videoId: 1, content: "Nouveau commentaire", userId: 1);
   }
 
   @override
@@ -102,23 +108,17 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
 
   }
 
-  void showComments(String videoId) async {
-   
-    showModalBottomSheet(
-   
-      context: context,
-    
-      isScrollControlled: true,
-    
-      builder: (_) {
-      
-        return const CommentSheet(video: videoId);
-    
-      },
-  
-    );
-  
-  }
+  void showComments() {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    builder: (_) {
+      return CommentBottomSheet(
+        videoId: widget.video['id'],
+      );
+    },
+  );
+}
 
   void _togglePlayPause() {
    
@@ -199,7 +199,7 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
 
                   onPressed: () {
 
-                    showComments(widget.video['id']);
+                    showComments();
 
                   },
                 ),
@@ -219,120 +219,120 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
 
 }
 
-class CommentSheet extends StatelessWidget {
-  final String video;
-  const CommentSheet({super.key, required this.video});
-
-  @override
-  
-  Widget build(BuildContext context) {
-    final api_service  = ApiService();
-
-    final comments = api_service.getComments(video);
-    return SafeArea(
-     
-      child: SizedBox(
-     
-        height: MediaQuery.of(context).size.height * .7,
-     
-        child: Column(
-       
-          children: [
-       
-            const Padding(
-        
-              padding: EdgeInsets.all(16),
-         
-              child: Text(
-              
-                "Commentaires",
-              
-                style: TextStyle(
-              
-                  fontSize: 18,
-              
-                  fontWeight: FontWeight.bold,
-              
-                ),
-             
-              ),
-           
-            ),
-
-            const Divider(),
-
-            Expanded(
-              
-              child: ListView.builder(
-
-                itemCount: 10,
-
-                itemBuilder: (_, index) {
-
-                  return const ListTile(
-
-                    leading: CircleAvatar(),
-
-                    title: Text("Utilisateur"),
-
-                    subtitle: Text("Très belle vidéo !"),
-
-                  );
-
-                },
-
-              ),
-
-            ),
-
-            Padding(
-
-              padding: const EdgeInsets.all(12),
-
-              child: Row(
-
-                children: [
-
-                  Expanded(
-
-                    child: TextField(
-
-                      decoration: InputDecoration(
-
-                        hintText: "Ajouter un commentaire...",
-
-                        border: OutlineInputBorder(),
-
-                      ),
-
-                    ),
-
-                  ),
-
-                  IconButton(
-
-                    icon: const Icon(Icons.send),
-
-                    onPressed: () {
-
-                    },
-
-                  ),
-
-                ],
-
-              ),
-
-            )
-
-          ],
-
-        ),
-
-      ),
-
-    );
-
-  }
-
-}
+// class CommentSheet extends StatelessWidget {
+//   final String video;
+//   const CommentSheet({super.key, required this.video});
+// 
+//   @override
+//   
+//   Widget build(BuildContext context) {
+//     final api_service  = ApiService();
+// 
+//     final comments = api_service.getComments(video);
+//     return SafeArea(
+//      
+//       child: SizedBox(
+//      
+//         height: MediaQuery.of(context).size.height * .7,
+//      
+//         child: Column(
+//        
+//           children: [
+//        
+//             const Padding(
+//         
+//               padding: EdgeInsets.all(16),
+//          
+//               child: Text(
+//               
+//                 "Commentaires",
+//               
+//                 style: TextStyle(
+//               
+//                   fontSize: 18,
+//               
+//                   fontWeight: FontWeight.bold,
+//               
+//                 ),
+//              
+//               ),
+//            
+//             ),
+// 
+//             const Divider(),
+// 
+//             Expanded(
+//               
+//               child: ListView.builder(
+// 
+//                 itemCount: 10,
+// 
+//                 itemBuilder: (_, index) {
+// 
+//                   return const ListTile(
+// 
+//                     leading: CircleAvatar(),
+// 
+//                     title: Text("Utilisateur"),
+// 
+//                     subtitle: Text("Très belle vidéo !"),
+// 
+//                   );
+// 
+//                 },
+// 
+//               ),
+// 
+//             ),
+// 
+//             Padding(
+// 
+//               padding: const EdgeInsets.all(12),
+// 
+//               child: Row(
+// 
+//                 children: [
+// 
+//                   Expanded(
+// 
+//                     child: TextField(
+// 
+//                       decoration: InputDecoration(
+// 
+//                         hintText: "Ajouter un commentaire...",
+// 
+//                         border: OutlineInputBorder(),
+// 
+//                       ),
+// 
+//                     ),
+// 
+//                   ),
+// 
+//                   IconButton(
+// 
+//                     icon: const Icon(Icons.send),
+// 
+//                     onPressed: () {
+// 
+//                     },
+// 
+//                   ),
+// 
+//                 ],
+// 
+//               ),
+// 
+//             )
+// 
+//           ],
+// 
+//         ),
+// 
+//       ),
+// 
+//     );
+// 
+//   }
+// 
+// }
