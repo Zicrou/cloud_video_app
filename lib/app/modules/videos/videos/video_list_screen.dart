@@ -1,6 +1,9 @@
 import 'package:cloud_video_app/app/data/services/api_service.dart';
+import 'package:cloud_video_app/app/modules/auths/auth_controller.dart';
+import 'package:cloud_video_app/app/modules/login/login_screen.dart';
 import 'package:cloud_video_app/app/modules/videos/videos/video_item_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class VideoListScreen extends StatefulWidget {
   const VideoListScreen({super.key});
@@ -12,6 +15,8 @@ class VideoListScreen extends StatefulWidget {
 class _VideoListScreenState extends State<VideoListScreen> {
   List videos = [];
   bool isLoading = true;
+  
+  final auth_controller = Get.find<AuthController>();
 
   @override
   void initState() {
@@ -44,10 +49,54 @@ class _VideoListScreenState extends State<VideoListScreen> {
     return Scaffold(
 
       appBar: AppBar(
+        title: Text(
+          "Liste des ventes",
+          style: TextStyle(
+            fontSize: 32,
+            fontFamily: 'avenir',
+            fontWeight: FontWeight.w900,
+            color: Color.fromARGB(255, 0, 173, 253),
+          ),
+        ),
 
-        title: const Text("Videos"),
-      
+        backgroundColor: Color.fromARGB(255, 255, 255, 255),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout, color: Colors.red),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text("Déconnexion"),
+                    content: Text(
+                      "Êtes-vous sûr de vouloir vous déconnecter ?",
+                    ),
+                    actions: [
+                      TextButton(
+                        child: Text("Annuler"),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      TextButton(
+                        child: Text("Se déconnecter"),
+                        onPressed: () async {
+                          Navigator.of(context).pop(); // Close the dialog
+                          await auth_controller.logout();
+                          Get.to(() => LoginScreen());
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
+      backgroundColor: Color(0xFFF5F5F5),
+
       
       body: isLoading
           

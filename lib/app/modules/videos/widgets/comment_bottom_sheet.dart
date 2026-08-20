@@ -21,11 +21,11 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
 
   @override
 
-  void initState() {
+  void initState() async{
     
     super.initState();
 
-    commentsFuture = CommentService()
+    commentsFuture = await CommentService()
         .getComments(widget.videoId);
   }
 
@@ -124,14 +124,13 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
 
                         content: controller.text.trim(),
                           
-                        userId: 1
                       );
 
                       controller.clear();
 
-                      setState(() {
+                      setState(() async{
 
-                        commentsFuture = CommentService()
+                        commentsFuture = await CommentService()
                             .getComments(widget.videoId);
 
                       });

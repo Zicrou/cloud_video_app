@@ -2,6 +2,8 @@ import 'package:cloud_video_app/app/data/services/api_service.dart';
 import 'package:cloud_video_app/app/data/services/comment_service.dart';
 import 'package:cloud_video_app/app/modules/videos/widgets/comment_bottom_sheet.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/route_manager.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoItemScreen extends StatefulWidget {
@@ -20,9 +22,9 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
   
   late VideoPlayerController _controller;
   
-  late bool isLiked;
+  bool isLiked = false;
   
-  late int likeCount;
+  int likeCount = 0;
 
   int commentCount = 0;
 
@@ -56,7 +58,7 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
 
     likeCount = widget.video['likes_count'];
 
-    isLiked = false;
+    
 
     // CommentService().addComment(videoId: 1, content: "Nouveau commentaire", userId: 1);
   }
@@ -84,25 +86,17 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
     super.dispose();
   }
 
-  dynamic toggleLike() async {
-    
-    final data = await ApiService().toggleLike("${widget.video['id']}");
+  dynamic toggleLike(int videoId) async {
+    final apiService = Get.put(ApiService());
+    final data = await apiService.toggleLike(widget.video['id']);
 
     print("Response de Data from toggle Like: ${data['liked']}");
 
     setState(() {
-
-      if(data['liked'] == true){
-        isLiked = true;
-        likeCount = likeCount + 1;
-
-      }else{
-        isLiked = false;
-
-        likeCount = likeCount - 1;
-      }
-
       
+        isLiked = data['liked'] as bool;
+
+        likeCount = data['likes_count'] as int;
    
     });
 
@@ -168,7 +162,9 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
               children: [
                 IconButton(
                   onPressed: () async {
-                    await toggleLike();
+                    print("Video id: ${widget.video['id']}");
+                    await toggleLike(widget.video['id']);
+
                   },
                   icon: Icon(
                     isLiked

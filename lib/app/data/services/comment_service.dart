@@ -1,37 +1,29 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:cloud_video_app/app/core/values/endpoints.dart';
+import 'package:cloud_video_app/app/data/providers/api_providers.dart';
+import 'package:get/get.dart';
+
+import 'api_service.dart';
 
 class CommentService {
+    final ApiProvider _apiProvider = Get.find<ApiProvider>();
 
-  static const baseUrl = "http://16.171.148.245/api";
 
-  Future<List<dynamic>> getComments(int videoId) async {
-
-    final response = await http.get(
-      Uri.parse("$baseUrl/videos/$videoId/comments"),
+  Future<dynamic> getComments(int videoId) async {
+    return await _apiProvider.get(
+      '/videos/$videoId/comments',
     );
-    print("Response de getComments dans comment service: ${response.body}");
-    var resp =  jsonDecode(response.body);
-
-    print("resp: $resp");
-    return resp;
   }
 
-  Future<void> addComment({
+  Future<dynamic> addComment({
     required int videoId,
     required String content,
-    required int userId
   }) async {
-    print("VideoId: $videoId, content: $content, userID: $userId");
-    final response = await http.post(
-      Uri.parse("$baseUrl/comments"),
-      body: {
+    return await _apiProvider.post(
+      '$baseUrl/comments', //$baseUrl/videos/$videoId/comments',
+      {
         "video_id": videoId.toString(),
         "comment": content,
-        "user_id": userId.toString(),
       },
     );
-
-    print("Response: ${response.body}");
   }
 }
