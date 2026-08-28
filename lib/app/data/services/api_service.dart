@@ -1,8 +1,15 @@
 import 'dart:convert';
+import 'package:cloud_video_app/app/core/values/endpoints.dart';
+import 'package:cloud_video_app/app/data/providers/api_providers.dart';
+import 'package:cloud_video_app/app/data/providers/auth_providers.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = "http://16.171.148.245/api";
+
+  final auth_provider = AuthProvider();
+
+  final apiProvider = ApiProvider();
+
 
   static Future<List<dynamic>> getVideos() async {
     final response = await http.get(
@@ -18,31 +25,6 @@ class ApiService {
     }
   }
 
-  Future<dynamic> toggleLike(String videoId) async {
   
-    var response = await http.post(
-      
-      Uri.parse('$baseUrl/like'),
-      
-      body: {
-      
-        "video_id": videoId,
-      
-        "user_id": "1",
-      
-      },
-
-    );
-
-    print("Response de toggleLike de Api Service: ${response.body}");
-    
-   final res = jsonDecode(response.body);
-
-    print("Response.body de toggleLike de Api Service: $res['liked]");
-
-
-    return res;
-
-  }
 
 }

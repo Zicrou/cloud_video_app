@@ -71,17 +71,17 @@ class SignupScreen extends GetView<AuthController> {
                       }
                       return null;
                     },
-                    controller: controller.phoneNumberController,
+                    controller: controller.emailController,
                     decoration: InputDecoration(
                       prefixIcon: Icon(
-                        Icons.phone,
+                        Icons.email,
                         color: Color.fromARGB(255, 0, 173, 253),
                       ),
-                      labelText: "Numéro de téléphone",
+                      labelText: "Email",
                       labelStyle: TextStyle(
                         color: Color.fromARGB(255, 0, 173, 253),
                       ),
-                      errorText: controller.isPhoneNumberValid.value
+                      errorText: controller.isEmailValid.value
                           ? null
                           : "Numéro de téléphone invalide",
                       filled: true,
@@ -95,7 +95,7 @@ class SignupScreen extends GetView<AuthController> {
                         borderSide: BorderSide.none,
                       ),
                     ),
-                    keyboardType: TextInputType.phone,
+                    keyboardType: TextInputType.emailAddress,
                   ),
                 ),
                 SizedBox(height: 20),

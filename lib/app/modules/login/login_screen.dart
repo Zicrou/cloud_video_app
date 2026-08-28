@@ -9,6 +9,7 @@ import 'package:logger/logger.dart';
 final logger = Logger();
 
 class LoginScreen extends GetView<AuthController> {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,19 +40,19 @@ class LoginScreen extends GetView<AuthController> {
                       }
                       return null;
                     },
-                    controller: controller.phoneNumberController,
+                    controller: controller.emailController,
                     decoration: InputDecoration(
                       prefixIcon: Icon(
                         Icons.email,
                         color: Color.fromARGB(255, 10, 151, 217),
                       ),
-                      labelText: "Numéro de téléphone",
+                      labelText: "Email",
                       labelStyle: TextStyle(
                         color: Color.fromARGB(255, 0, 173, 253),
                       ),
-                      errorText: controller.isPhoneNumberValid.value
+                      errorText: controller.isEmailValid.value
                           ? null
-                          : "Numéro de téléphone invalide",
+                          : "Email invalide",
                       filled: true,
                       fillColor: Colors.white,
                       border: OutlineInputBorder(

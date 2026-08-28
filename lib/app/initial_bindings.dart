@@ -16,6 +16,6 @@ class AppInitialBindings extends Bindings {
     Get.put(AuthRepositories()); // MUST come before AuthServices
     Get.lazyPut(() => AuthServices());
     // safe to find dependencies
-    Get.lazyPut(() => AuthController());
+    Get.put(AuthController());
   }
 }
