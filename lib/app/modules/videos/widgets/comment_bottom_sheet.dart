@@ -1,5 +1,6 @@
 import 'package:cloud_video_app/app/data/services/comment_service.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class CommentBottomSheet extends StatefulWidget {
   final int videoId;
@@ -19,14 +20,15 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
 
   final controller = TextEditingController();
 
+  final _commentService = Get.put(CommentService());
+
   @override
 
-  void initState() async{
+  void initState() {
     
     super.initState();
 
-    commentsFuture = await CommentService()
-        .getComments(widget.videoId);
+    commentsFuture = CommentService().getComments(widget.videoId);
   }
 
   @override
@@ -130,8 +132,7 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
 
                       setState(() async{
 
-                        commentsFuture = await CommentService()
-                            .getComments(widget.videoId);
+                        commentsFuture = CommentService().getComments(widget.videoId);
 
                       });
 

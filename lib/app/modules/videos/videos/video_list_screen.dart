@@ -1,4 +1,6 @@
 import 'package:cloud_video_app/app/data/services/api_service.dart';
+import 'package:cloud_video_app/app/data/services/comment_service.dart';
+import 'package:cloud_video_app/app/data/services/video_service.dart';
 import 'package:cloud_video_app/app/modules/auths/auth_controller.dart';
 import 'package:cloud_video_app/app/modules/login/login_screen.dart';
 import 'package:cloud_video_app/app/modules/videos/videos/video_item_screen.dart';
@@ -17,6 +19,7 @@ class _VideoListScreenState extends State<VideoListScreen> {
   bool isLoading = true;
   
   final auth_controller = Get.find<AuthController>();
+  final _videoServices = Get.put(VideoService());
 
   @override
   void initState() {
@@ -25,7 +28,7 @@ class _VideoListScreenState extends State<VideoListScreen> {
   }
 
   void fetchVideos() async {
-    final data = await ApiService.getVideos();
+    final data = await _videoServices.getVideos();
     setState(() {
       videos = data;
       isLoading = false;

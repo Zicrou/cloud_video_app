@@ -1,5 +1,6 @@
 import 'package:cloud_video_app/app/data/services/api_service.dart';
 import 'package:cloud_video_app/app/data/services/comment_service.dart';
+import 'package:cloud_video_app/app/data/services/video_service.dart';
 import 'package:cloud_video_app/app/modules/videos/widgets/comment_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -87,8 +88,8 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
   }
 
   dynamic toggleLike(int videoId) async {
-    final apiService = Get.put(ApiService());
-    final data = await apiService.toggleLike(widget.video['id']);
+    final _videoService = Get.put(VideoService());
+    final data = await _videoService.toggleLike(widget.video['id']);
 
     print("Response de Data from toggle Like: ${data['liked']}");
 
@@ -201,7 +202,7 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
                 ),
 
                 Text(
-                  "$commentCount",
+                  "${widget.video['comments_count']}",
                   style: const TextStyle(color: Colors.white),
                 ),
               ],
