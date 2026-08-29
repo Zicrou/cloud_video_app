@@ -28,7 +28,7 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
     
     super.initState();
 
-    commentsFuture = CommentService().getComments(widget.videoId);
+    commentsFuture = _commentService.getComments(widget.videoId);
   }
 
   @override
@@ -120,7 +120,7 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
                     onPressed: () async {
 
                       print("Controller: ${controller.text}");
-                      await CommentService().addComment(
+                      await _commentService.addComment(
 
                         videoId: widget.videoId,
 
@@ -130,9 +130,9 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
 
                       controller.clear();
 
-                      setState(() async{
+                      setState(() {
 
-                        commentsFuture = CommentService().getComments(widget.videoId);
+                        commentsFuture = _commentService.getComments(widget.videoId);
 
                       });
 

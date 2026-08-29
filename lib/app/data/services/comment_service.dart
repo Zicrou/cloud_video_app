@@ -27,6 +27,7 @@ class CommentService {
     required int videoId,
     required String content,
   }) async {
+    print("Adding comment: $content");
     return await _apiProvider.post(
       '$baseUrl/videos/$videoId/comments',
       {
