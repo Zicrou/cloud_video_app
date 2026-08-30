@@ -1,3 +1,4 @@
+import 'package:cloud_video_app/app/data/models/user.dart';
 import 'package:cloud_video_app/app/data/models/user_register.dart';
 import 'package:cloud_video_app/app/data/providers/storage_providers.dart';
 import 'package:logger/logger.dart';
@@ -8,14 +9,23 @@ import '../models/user_info.dart';
 final logger = Logger();
 
 class AuthProvider extends GetxService {
+  
   final _storageProvider = Get.find<StorageProvider>();
+  
   final _user = UserInfo().obs;
+  
   final _userRegister = UserRegister().obs;
+  
   final _isAuthenticated = false.obs;
+  
   final _authToken = ''.obs;
+  
   final _refreshToken = ''.obs;
+  
   final _userId = ''.obs;
+  
   final deviceId = ''.obs;
+  
   final _fcmToken = ''.obs;
 
   bool get isAuthenticated => _isAuthenticated.value;

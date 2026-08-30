@@ -1,6 +1,6 @@
 import 'package:cloud_video_app/app/data/providers/auth_providers.dart';
 import 'package:cloud_video_app/app/modules/auths/auth_controller.dart';
-import 'package:cloud_video_app/view/signup_screen.dart';
+import 'package:cloud_video_app/app/modules/auths/signup/signup_screen.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';

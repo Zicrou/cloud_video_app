@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:cloud_video_app/app/data/providers/auth_providers.dart';
 import 'package:cloud_video_app/app/data/repositories/auth_repositories.dart';
 import 'package:cloud_video_app/app/data/services/auth_services.dart';
-import 'package:cloud_video_app/app/modules/login/login_screen.dart';
+import 'package:cloud_video_app/app/modules/auths/login/login_screen.dart';
 import 'package:cloud_video_app/app/modules/videos/videos/video_list_screen.dart';
 import 'package:cloud_video_app/app/utils/messages.dart';
 import 'package:flutter/material.dart';
@@ -32,16 +32,24 @@ class AuthController extends GetxController {
 
   void login() async {
     print("LoginFormKey: $loginFormKey");
+
     try {
+
       print("conecting..");
+
       _isLoading.value = true;
+
       if (loginFormKey.currentState!.validate()) {
+
         loginFormKey.currentState!.save();
+
         String email = emailController.text.trim();
+
         String password = passwordController.text.trim();
 
         // Call the post Api method to send data
         var userInfo = await authServices.login(email: email, password: password);
+
         print("Response Auth Controller: ${userInfo}");
 
         emailController.clear();

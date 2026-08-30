@@ -23,15 +23,32 @@ class ApiInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    logger.e(
-      'RESPONSE | path: ${err.response!.requestOptions.path} '
-      'method: ${err.response!.requestOptions.method} '
-      'statusCode: ${err.response!.statusCode} '
-      'statusMessage: ${err.response!.statusMessage} '
-      'body: ${err.response!}',
-    );
-    errorMessage(err.response!.data['error']);
+    final response = err.response;
+    if(response != null){
+    
+      logger.e(
+        'RESPONSE | path: ${response.requestOptions.path} '
+        
+        'method: ${response.requestOptions.method} '
+        
+        'statusCode: ${response.statusCode} '
+        
+        'statusMessage: ${response.statusMessage} '
+        
+        'body: $response',
+        
+      );
+    errorMessage(response.data['error']);
     handler.next(err);
+    }else{
+      logger.e(
+        'RESPONSE | path: ${response?.requestOptions.path} '
+        'body: $response',
+        
+      );
+      errorMessage(response?.data['error']);
+      handler.next(err);
+    }
   }
 
   @override

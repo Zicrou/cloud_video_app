@@ -1,5 +1,8 @@
+import 'package:cloud_video_app/app/data/providers/auth_providers.dart';
 import 'package:cloud_video_app/app/data/services/api_service.dart';
+import 'package:cloud_video_app/app/data/services/auth_services.dart' hide logger;
 import 'package:cloud_video_app/app/data/services/comment_service.dart';
+import 'package:cloud_video_app/app/data/services/like_service.dart';
 import 'package:cloud_video_app/app/data/services/video_service.dart';
 import 'package:cloud_video_app/app/modules/videos/widgets/comment_bottom_sheet.dart';
 import 'package:flutter/material.dart';
@@ -29,12 +32,13 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
 
   int commentCount = 0;
 
-  // final comment_sheet = CommentBottomSheet();
-  
-  
+  final AuthProvider authProvider = Get.find<AuthProvider>();
+
   @override
   void initState() {
     super.initState();
+
+    loadLikeStatus();
 
     _controller = VideoPlayerController.networkUrl(Uri.parse(widget.video['url']))
       ..initialize().then((_) {
@@ -59,9 +63,6 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
 
     likeCount = widget.video['likes_count'];
 
-    
-
-    // CommentService().addComment(videoId: 1, content: "Nouveau commentaire", userId: 1);
   }
 
   @override
@@ -88,8 +89,8 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
   }
 
   dynamic toggleLike(int videoId) async {
-    final _videoService = Get.put(VideoService());
-    final data = await _videoService.toggleLike(widget.video['id']);
+    final _likeService = Get.put(LikeService());
+    final data = await _likeService.toggleLike(widget.video['id']);
 
     print("Response de Data from toggle Like: ${data['liked']}");
 
@@ -125,6 +126,29 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
 
     _controller.play();
 
+  }
+
+  Future<void> loadLikeStatus() async {
+    
+    try {
+      
+      final liked = await LikeService()
+          .isLiked(widget.video['id']);
+
+      if (!mounted) return;
+
+      setState(() {
+      
+        isLiked = liked;
+     
+      });
+   
+    } catch (e) {
+    
+      logger.e('Error loading like status: $e');
+    
+    }
+  
   }
 
   @override
@@ -166,6 +190,14 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
                     print("Video id: ${widget.video['id']}");
                     await toggleLike(widget.video['id']);
 
+                    if (!mounted) return;
+
+                    setState(() {
+
+                       isLiked = isLiked;
+                   
+                    });
+                    
                   },
                   icon: Icon(
                     isLiked
@@ -194,8 +226,8 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
 
                   ),
 
-                  onPressed: () {
-
+                  onPressed: () async {
+                
                     showComments();
 
                   },
@@ -215,121 +247,3 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
   }
 
 }
-
-// class CommentSheet extends StatelessWidget {
-//   final String video;
-//   const CommentSheet({super.key, required this.video});
-// 
-//   @override
-//   
-//   Widget build(BuildContext context) {
-//     final api_service  = ApiService();
-// 
-//     final comments = api_service.getComments(video);
-//     return SafeArea(
-//      
-//       child: SizedBox(
-//      
-//         height: MediaQuery.of(context).size.height * .7,
-//      
-//         child: Column(
-//        
-//           children: [
-//        
-//             const Padding(
-//         
-//               padding: EdgeInsets.all(16),
-//          
-//               child: Text(
-//               
-//                 "Commentaires",
-//               
-//                 style: TextStyle(
-//               
-//                   fontSize: 18,
-//               
-//                   fontWeight: FontWeight.bold,
-//               
-//                 ),
-//              
-//               ),
-//            
-//             ),
-// 
-//             const Divider(),
-// 
-//             Expanded(
-//               
-//               child: ListView.builder(
-// 
-//                 itemCount: 10,
-// 
-//                 itemBuilder: (_, index) {
-// 
-//                   return const ListTile(
-// 
-//                     leading: CircleAvatar(),
-// 
-//                     title: Text("Utilisateur"),
-// 
-//                     subtitle: Text("Très belle vidéo !"),
-// 
-//                   );
-// 
-//                 },
-// 
-//               ),
-// 
-//             ),
-// 
-//             Padding(
-// 
-//               padding: const EdgeInsets.all(12),
-// 
-//               child: Row(
-// 
-//                 children: [
-// 
-//                   Expanded(
-// 
-//                     child: TextField(
-// 
-//                       decoration: InputDecoration(
-// 
-//                         hintText: "Ajouter un commentaire...",
-// 
-//                         border: OutlineInputBorder(),
-// 
-//                       ),
-// 
-//                     ),
-// 
-//                   ),
-// 
-//                   IconButton(
-// 
-//                     icon: const Icon(Icons.send),
-// 
-//                     onPressed: () {
-// 
-//                     },
-// 
-//                   ),
-// 
-//                 ],
-// 
-//               ),
-// 
-//             )
-// 
-//           ],
-// 
-//         ),
-// 
-//       ),
-// 
-//     );
-// 
-//   }
-// 
-// }

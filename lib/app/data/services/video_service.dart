@@ -14,20 +14,4 @@ class VideoService {
     return data as List<dynamic>;
   }
 
-  Future<dynamic> toggleLike(int videoId) async {
-  
-    var token = auth_provider.authToken;
-     
-    print("Data: $videoId");
-      
-    var response = await _apiProvider.post("$baseUrl/videos/$videoId/likes",{});
-
-    print("Response de toggleLike de Api Service: ${response['liked']}");
-    
-    print("Response['liked'] de toggleLike de Api Service: ${response['liked']}");
-
-    return response;
-
-  }
-
 }

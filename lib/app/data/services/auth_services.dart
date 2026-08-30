@@ -46,4 +46,12 @@ class AuthServices extends GetxService {
     logger.i('AuthService: Signing out');
     return await _authRepositories.signout();
   }
+
+  Future<Map<String, dynamic>> getCurrentUser() async {
+    
+    final response = await _authRepositories.getCurrentUser();
+
+    return response as Map<String, dynamic>;
+
+  }
 }

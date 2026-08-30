@@ -1,13 +1,15 @@
 import 'package:cloud_video_app/app/core/exceptions/network_exceptions.dart';
 import 'package:cloud_video_app/app/core/values/endpoints.dart';
+import 'package:cloud_video_app/app/data/models/user.dart';
 import 'package:cloud_video_app/app/data/models/user_info.dart';
 import 'package:cloud_video_app/app/data/models/user_register.dart';
 import 'package:cloud_video_app/app/data/providers/api_providers.dart';
 import 'package:cloud_video_app/app/data/providers/auth_providers.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
+import 'package:logger/web.dart';
 
-
+final logger = Logger();
 class AuthRepositories {
   //final dio = Dio();
   final _authProvider = Get.find<AuthProvider>();
@@ -95,30 +97,26 @@ class AuthRepositories {
     }
   }
 
-  // Future<List<dynamic>> fetchVentes() async {
-  //   try {
-  //     print("Auth Repositories: Fetching list of ventes");
-  //     final res = await _apiProvider.get(venteListEndpoint);
-  //     print('List Ventes response: $res');
-  //     return res;
-  //   } on BadRequestException {
-  //     rethrow;
-  //   }
-  // }
+  Future<User> getCurrentUser() async {
+    final path = '$baseUrl/user';
+    print("Path to get getCurrentUser: $path");
+    final response = await _apiProvider.get(path);
 
-  // Future<List<dynamic>> fetchVentes() async {
-  //   final response = await _authProvider.getVentes(); // Calls provider
-  //   if (response.statusCode == 200) {
-  //     // Assuming response.body is a JSON array
-  //     return response.body;
-  //   } else {
-  //     throw Exception('Failed to fetch ventes');
-  //   }
-  // }
+    print('CURRENT USER RESPONSE: $response');
+    
+    print('CURRENT USER TYPE: ${response.runtimeType}');
 
-  // Future<VenteInfo> listVentes() async {
-  //   final response = await _apiProvider.getVentes();
-  //   //final ventesResponse = VenteResponse.fromJson(response.data);
-  //   return VenteInfo.fromJson(response.data);
-  // }
+
+    return User.fromJson(response as Map<String, dynamic>);
+  }
+
+  Future<void> testCurrentUser() async {
+    try {
+      final user = await getCurrentUser();
+
+      logger.i('CURRENT USER: $user');
+    } catch (e) {
+      logger.e('CURRENT USER ERROR: $e');
+    }
+  }
 }

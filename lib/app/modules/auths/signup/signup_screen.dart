@@ -1,5 +1,5 @@
 import 'package:cloud_video_app/app/modules/auths/auth_controller.dart';
-import 'package:cloud_video_app/app/modules/login/login_screen.dart';
+import 'package:cloud_video_app/app/modules/auths/login/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
