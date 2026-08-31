@@ -12,29 +12,27 @@ class LikeService {
 
   Future<dynamic> toggleLike(int videoId) async {
   
-    var token = _authProvider.authToken;
-     
-    print("Data: $videoId");
+    print("Video ID: $videoId");
       
     var response = await _apiProvider.post("$baseUrl/videos/$videoId/likes",{});
 
-    print("Response de toggleLike de Api Service: ${response['liked']}");
+    print("Response de toggleLike: $response");
     
-    print("Response['liked'] de toggleLike de Api Service: ${response['liked']}");
+    print("Response['liked'] de toggleLike: ${response['liked']}");
 
     return response;
 
   }
 
-  Future<bool> isLiked(int videoId) async {
+  Future<Map<String, dynamic>> getLikeStatus(int videoId) async {
    
     final response = await _apiProvider.get(
-     
-      '$baseUrl/videos/$videoId/likes/isLiked',
+    
+      '$baseUrl/videos/$videoId/likes',
    
     );
 
-    return response['liked'] == true;
+    return response as Map<String, dynamic>;
 
   }
 

@@ -28,21 +28,27 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
   
   bool isLiked = false;
   
-  int likeCount = 0;
+  int likesCount = 0;
 
   int commentCount = 0;
 
   final AuthProvider authProvider = Get.find<AuthProvider>();
 
+  final _likeService = Get.put(LikeService());
+
   @override
   void initState() {
     super.initState();
+
+    likesCount = widget.video['likes_count'];
 
     loadLikeStatus();
 
     _controller = VideoPlayerController.networkUrl(Uri.parse(widget.video['url']))
       ..initialize().then((_) {
         
+        if (!mounted) return;
+
         setState(() {});
         
         if (widget.isActive) {
@@ -60,8 +66,6 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
       _controller.play();
       
     }
-
-    likeCount = widget.video['likes_count'];
 
   }
 
@@ -88,19 +92,32 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
     super.dispose();
   }
 
-  dynamic toggleLike(int videoId) async {
-    final _likeService = Get.put(LikeService());
-    final data = await _likeService.toggleLike(widget.video['id']);
+  Future<void> toggleLike(int videoId) async {
+    try{
 
-    print("Response de Data from toggle Like: ${data['liked']}");
+      final data = await _likeService.toggleLike(videoId);
 
-    setState(() {
+      print("Response: $data");
+
+      print("Liked: ${data['liked']}");
       
-        isLiked = data['liked'] as bool;
+      print("Likes count: ${data['likes_count']}");
 
-        likeCount = data['likes_count'] as int;
-   
-    });
+      if (!mounted) return;
+
+      setState(() {
+       
+        isLiked = data['liked'] == true;
+       
+        likesCount = data['likes_count'] ?? 0;
+     
+      });
+
+    } catch (e) {
+
+      logger.e('Toggle like error: $e');
+      
+    }
 
   }
 
@@ -129,26 +146,28 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
   }
 
   Future<void> loadLikeStatus() async {
-    
     try {
       
-      final liked = await LikeService()
-          .isLiked(widget.video['id']);
+        final response = await _likeService
+          .getLikeStatus(widget.video['id']);
 
-      if (!mounted) return;
-
-      setState(() {
       
-        isLiked = liked;
-     
-      });
+        if (!mounted) return;
+
+        setState(() {
+         
+          isLiked = response['liked'] == true;
+        
+          likesCount = response['likes_count'] ?? 0;
+       
+        });
    
     } catch (e) {
     
       logger.e('Error loading like status: $e');
-    
+   
     }
-  
+ 
   }
 
   @override
@@ -187,29 +206,31 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
               children: [
                 IconButton(
                   onPressed: () async {
-                    print("Video id: ${widget.video['id']}");
-                    await toggleLike(widget.video['id']);
-
-                    if (!mounted) return;
-
-                    setState(() {
-
-                       isLiked = isLiked;
-                   
-                    });
                     
+                    print("Video id: ${widget.video['id']}");
+                    
+                    await toggleLike(widget.video['id']);
+                  
                   },
+                  
                   icon: Icon(
+                  
                     isLiked
+                   
                         ? Icons.favorite
+                   
                         : Icons.favorite_border,
+                   
                     color: Colors.white,
+                  
                     size: 36,
+                 
                   ),
+                
                 ),
 
                 Text(
-                  "$likeCount",
+                  "$likesCount",
                   style: const TextStyle(color: Colors.white),
                 ),
                 SizedBox.shrink(),

@@ -64,7 +64,7 @@ class LoginScreen extends GetView<AuthController> {
                         borderSide: BorderSide.none,
                       ),
                     ),
-                    keyboardType: TextInputType.phone,
+                    keyboardType: TextInputType.emailAddress,
                   ),
                 ),
                 SizedBox(height: 20),

@@ -1,3 +1,4 @@
+import 'package:cloud_video_app/app/core/interceptors/api_interceptors.dart';
 import 'package:cloud_video_app/app/data/services/comment_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -16,11 +17,21 @@ class CommentBottomSheet extends StatefulWidget {
 
 class _CommentBottomSheetState extends State<CommentBottomSheet> {
   
-  late Future<List<dynamic>> commentsFuture;
-
   final controller = TextEditingController();
 
   final _commentService = Get.put(CommentService());
+
+  List<dynamic> comments = [];
+  
+  bool isLoadingComments = true;
+
+  final FocusNode commentFocusNode = FocusNode();
+
+  final TextEditingController _commentControllerTextEditingController =
+      TextEditingController();
+
+  final ScrollController scrollController =
+      ScrollController();
 
   @override
 
@@ -28,14 +39,100 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
     
     super.initState();
 
-    commentsFuture = _commentService.getComments(widget.videoId);
+    loadComments();
+  }
+
+  Future<void> loadComments() async {
+    try {
+     
+      final data = await _commentService.getComments(widget.videoId);
+
+      if (!mounted) return;
+
+      setState(() {
+       
+        comments = data;
+       
+        isLoadingComments = false;
+     
+      });
+    } catch (e) {
+      logger.e('Error loading comments: $e');
+
+      if (!mounted) return;
+
+      setState(() {
+
+        isLoadingComments = false;
+
+      });
+
+    }
+
+  }
+
+String formatCommentDate(String? date) {
+  
+  if (date == null) {
+  
+    return '';
+  
+  }
+
+  final createdAt = DateTime.parse(date);
+  
+  final now = DateTime.now();
+
+  final difference = now.difference(createdAt);
+
+  if (difference.inSeconds < 60) {
+    
+    return 'Il y a quelques secondes';
+
+  }
+
+  if (difference.inMinutes < 60) {
+
+    return 'Il y a ${difference.inMinutes} min';
+
+  }
+
+  if (difference.inHours < 24) {
+
+    return 'Il y a ${difference.inHours} h';
+
+  }
+
+  if (difference.inDays < 7) {
+
+    return 'Il y a ${difference.inDays} j';
+
+  }
+
+  return '${createdAt.day}/${createdAt.month}/${createdAt.year}';
+
+}
+
+@override
+  
+  void dispose() {
+   
+    controller.dispose();
+   
+    scrollController.dispose();
+
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return Padding(
+    padding: EdgeInsets.only(
+      bottom: MediaQuery.of(context).viewInsets.bottom,
+    ),
+    
       child: SizedBox(
-        height: MediaQuery.of(context).size.height * .7,
+        height: MediaQuery.of(context).size.height * .75,
         child: Column(
           children: [
 
@@ -52,96 +149,164 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
             ),
 
             // Divider
-            const Divider(),
+            const Divider(height: 1),
 
             // Liste des commentaires
             Expanded(
-              child: FutureBuilder<List<dynamic>>(
+              child: isLoadingComments
 
-                  future: commentsFuture,
+                  ? const Center(
+                   
+                      child: CircularProgressIndicator(),
+                   
+                    )
+                 
+                  : ListView.builder(
 
-                  builder: (context, snapshot) {
+                        controller: scrollController,
 
-                    if (!snapshot.hasData) {
+                        padding: const EdgeInsets.symmetric(vertical: 8,),
+                     
+                          itemCount: comments.length,
+                      
+                          itemBuilder: (context, index) {
+                      
+                            final comment = comments[index];
+                            final user = comment['user'];
 
-                      return const Center(
+                            return ListTile(      
 
-                        child: CircularProgressIndicator(),
+                              leading: const CircleAvatar(child: Icon(Icons.person),),
 
-                      );
-                    }
+                              title: Text(user?['name'] ?? 'Utilisateur', style: const TextStyle(fontWeight: FontWeight.bold,),),  
+                              
+                              subtitle: Column(
+                               
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                               
+                                children: [
+                               
+                                  Text(
+                               
+                                    comment['comment'] ?? '',
+                               
+                                  ),
+                                
+                                  const SizedBox(height: 4),
+                                
+                                  Text(
+                                
+                                    formatCommentDate(comment['created_at']),
+                                
+                                    style: const TextStyle(
+                                
+                                      fontSize: 12,
+                                
+                                      color: Colors.grey,
+                                
+                                    ),
+                                
+                                  ),
+                                
+                                ],
+                             
+                              ),
 
-                    final comments = snapshot.data!;
+                            );
 
-                    return ListView.builder(
+                          },
 
-                      itemCount: comments.length,
-
-                      itemBuilder: (_, index) {
-
-                        final comment = comments[index];
-
-                        return ListTile(
-
-                          leading: const CircleAvatar(),
-
-                          title: Text(comment['user']['name']),
-
-                          subtitle: Text(comment["comment"]),
-
-                        );
-
-                      },
-
-                    );
-
-                  },
-
-                ),
-
+                        ),
+                        
             ),
 
             // Champ de saisie
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                    controller: controller,
-                      decoration: const InputDecoration(
-                        hintText: "Ajouter un commentaire...",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.send),
-                    onPressed: () async {
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Row(
+                  
+                  children: [
+                    
+                    Expanded(
+                      
+                      child: TextField(
+                      
+                      controller: _commentControllerTextEditingController,
 
-                      print("Controller: ${controller.text}");
-                      await _commentService.addComment(
+                      textInputAction:
+                         
+                          TextInputAction.newline,
+                      
+                          maxLines: null,
 
-                        videoId: widget.videoId,
-
-                        content: controller.text.trim(),
+                        focusNode: commentFocusNode,
+                       
+                        decoration: InputDecoration(
+                         
+                          hintText: "Ajouter un commentaire...",
                           
-                      );
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(24)),
 
-                      controller.clear();
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                        ),
 
-                      setState(() {
+                      ),
 
-                        commentsFuture = _commentService.getComments(widget.videoId);
+                    ),
 
-                      });
+                    IconButton(
 
-                    },
+                      icon: const Icon(Icons.send),
 
-                  ),
-                ],
+                      onPressed: () async {
+
+                        print("Controller: ${_commentControllerTextEditingController.text}");
+
+                        final content = _commentControllerTextEditingController.text.trim();
+
+                        if (content.isEmpty) {
+                          return;
+                        }
+
+
+                        try{
+
+                          final newComment = await _commentService.addComment(
+
+                            videoId: widget.videoId,
+
+                            content: content,
+                            
+                        );
+
+                        if (!mounted) return;
+
+                        setState(() {
+
+                          comments.insert(0, newComment);
+
+                        });
+
+                        _commentControllerTextEditingController.clear();
+
+                        }catch(e) {
+
+                          logger.e('Error adding comment: $e');
+
+                        }
+
+                      },
+
+                    ),
+                  ],
+                ),
               ),
-            ),
+            )
           ],
         ),
       ),
