@@ -58,7 +58,7 @@ class AuthProvider extends GetxService {
     _user.value = user;
     logger.i('userId: ${user.user}');
 
-    if (user.user!.id != null) {
+    if (user.user?.id != null) {
       _userId.value = user.user!.id.toString();
     }
   }

@@ -35,4 +35,14 @@ class CommentService {
       },
     );
   }
+
+  Future<void> deleteComment(int commentId) async {
+    
+    await _apiProvider.delete(
+    
+      '$baseUrl/comments/$commentId',
+   
+    );
+  
+  }
 }

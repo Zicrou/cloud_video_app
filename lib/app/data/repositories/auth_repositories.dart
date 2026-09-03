@@ -38,8 +38,10 @@ class AuthRepositories {
       }
       _authProvider.isAuthenticated = true;
       _authProvider.authToken = userInfo.token!;
+      _authProvider.user = userInfo;
       print('authToken: ${_authProvider.authToken}');
       print("userInfo from Repositories: ${userInfo.toString()}");
+      
       return userInfo;
     } on BadRequestException {
       rethrow;

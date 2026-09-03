@@ -1,4 +1,5 @@
 import 'package:cloud_video_app/app/core/interceptors/api_interceptors.dart';
+import 'package:cloud_video_app/app/data/providers/auth_providers.dart' hide logger;
 import 'package:cloud_video_app/app/data/services/comment_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -33,6 +34,10 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
   final ScrollController scrollController =
       ScrollController();
 
+  Map<String, dynamic>? replyingTo;
+
+  final _authProvider = Get.find<AuthProvider>();
+
   @override
 
   void initState() {
@@ -40,6 +45,8 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
     super.initState();
 
     loadComments();
+
+
   }
 
   Future<void> loadComments() async {
@@ -57,6 +64,7 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
      
       });
     } catch (e) {
+      
       logger.e('Error loading comments: $e');
 
       if (!mounted) return;
@@ -124,6 +132,132 @@ String formatCommentDate(String? date) {
     super.dispose();
   }
 
+
+  Future<void> deleteComment(
+    
+    Map<String, dynamic> comment,
+  
+  ) async {
+   
+    final commentId = comment['id'];
+
+    try {
+    
+      await _commentService.deleteComment(commentId);
+
+      if (!mounted) return;
+    
+      setState(() {
+    
+        comments.removeWhere(
+    
+          (item) => item['id'] == commentId,
+    
+        );
+    
+      });
+
+    } catch (e) {
+    
+      logger.e(
+        'Error deleting comment: $e',
+      );
+    }
+  }
+
+  Future<void> confirmDeleteComment(
+   
+    Map<String, dynamic> comment,
+ 
+  ) async {
+   
+    final confirmed = await showDialog<bool>(
+   
+     context: context,
+   
+      builder: (context) {
+   
+        return AlertDialog(
+   
+          title: const Text(
+   
+            'Supprimer le commentaire ?',
+   
+          ),
+   
+          content: const Text(
+   
+            'Cette action est irréversible.',
+   
+          ),
+   
+          actions: [
+   
+            TextButton(
+   
+              onPressed: () {
+   
+               Navigator.pop(context, false);
+   
+              },
+   
+              child: const Text('Annuler'),
+   
+            ),
+   
+            TextButton(
+   
+              onPressed: () {
+   
+                Navigator.pop(context, true);
+   
+              },
+   
+              child: const Text('Supprimer'),
+   
+            ),
+
+         ],
+
+        );
+
+      },
+
+    );
+
+    if (confirmed == true) {
+      await deleteComment(comment);
+    }
+  }
+
+  void replyToComment(
+   
+    Map<String, dynamic> comment,
+  
+  ) {
+  
+    setState(() {
+  
+      replyingTo = comment;
+  
+    });
+
+    _commentControllerTextEditingController.text = '@${comment['user']?['name'] ?? 'Utilisateur'} ';
+    
+    _commentControllerTextEditingController.selection = TextSelection.fromPosition(
+     
+      TextPosition(
+     
+        offset: _commentControllerTextEditingController.text.length,
+    
+      ),
+    
+    );
+
+    commentFocusNode.requestFocus();
+  
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -161,7 +295,7 @@ String formatCommentDate(String? date) {
                    
                     )
                  
-                  : ListView.builder(
+                : ListView.builder(
 
                         controller: scrollController,
 
@@ -172,7 +306,16 @@ String formatCommentDate(String? date) {
                           itemBuilder: (context, index) {
                       
                             final comment = comments[index];
+                            
                             final user = comment['user'];
+
+                            final currentUserId = _authProvider.user.user?.id;
+
+                            final commentUserId = user?['id'];
+
+                            final bool isOwner = commentUserId == currentUserId;
+
+                            print("IsOwner: $isOwner, CommentUser: $commentUserId, CurrentUser: $currentUserId");
 
                             return ListTile(      
 
@@ -211,12 +354,61 @@ String formatCommentDate(String? date) {
                                 ],
                              
                               ),
+                              trailing: PopupMenuButton<String>(
+                                
+                                onSelected: (value) {
+                                 
+                                  switch (value) {
+                                 
+                                    case 'reply':
+                                  
+                                      replyToComment(comment);
+                                  
+                                      break;
+
+                                    case 'delete':
+                                   
+                                      confirmDeleteComment(comment);
+                                  
+                                      break;
+                                 
+                                  }
+                                
+                                },
+                                
+                                itemBuilder: (context) {
+                                
+                                  return [
+                                
+                                    const PopupMenuItem(
+                                
+                                      value: 'reply',
+                                
+                                      child: Text('Répondre'),
+                                
+                                    ),
+
+                                    if (isOwner)
+                                  
+                                      const PopupMenuItem(
+                                  
+                                        value: 'delete',
+                                  
+                                        child: Text('Supprimer'),
+                                  
+                                      ),
+                                 
+                                  ];
+                               
+                                },
+                             
+                              ),
 
                             );
 
                           },
 
-                        ),
+              ),
                         
             ),
 
@@ -225,91 +417,154 @@ String formatCommentDate(String? date) {
               top: false,
               child: Padding(
                 padding: const EdgeInsets.all(8),
-                child: Row(
-                  
-                  children: [
-                    
-                    Expanded(
-                      
-                      child: TextField(
-                      
-                      controller: _commentControllerTextEditingController,
+                  child: Column(
 
-                      textInputAction:
-                         
-                          TextInputAction.newline,
-                      
-                          maxLines: null,
+                    children: [
 
-                        focusNode: commentFocusNode,
-                       
-                        decoration: InputDecoration(
-                         
-                          hintText: "Ajouter un commentaire...",
+                      if (replyingTo != null) ...[
+                        
+                        Container(
+                        
+                          padding: const EdgeInsets.symmetric(
+                        
+                            horizontal: 12,
+                        
+                            vertical: 8,
+                        
+                          ),
+                        
+                          child: Row(
+                        
+                            children: [
+                        
+                              Expanded(
+                        
+                                child: Text(
+                        
+                                  'Réponse à ${replyingTo!['user']?['name'] ?? 'Utilisateur'}',
+                        
+                                ),
+                        
+                              ),
+
+                              IconButton(
                           
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(24)),
-
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 10,
-                            ),
-                        ),
-
-                      ),
-
-                    ),
-
-                    IconButton(
-
-                      icon: const Icon(Icons.send),
-
-                      onPressed: () async {
-
-                        print("Controller: ${_commentControllerTextEditingController.text}");
-
-                        final content = _commentControllerTextEditingController.text.trim();
-
-                        if (content.isEmpty) {
-                          return;
-                        }
-
-
-                        try{
-
-                          final newComment = await _commentService.addComment(
-
-                            videoId: widget.videoId,
-
-                            content: content,
+                                icon: const Icon(Icons.close),
                             
-                        );
+                                onPressed: () {
+                            
+                                  setState(() {
+                            
+                                    replyingTo = null;
+                            
+                                  });
 
-                        if (!mounted) return;
+                                  _commentControllerTextEditingController.clear();
+                              
+                                },
+                            
+                              ),
+                           
+                            ],
+                         
+                          ),
+                       
+                        ),
+                    
+                      ],
 
-                        setState(() {
+                      Row(
+                      
+                        children: [
+                      
+                          Expanded(
+                      
+                            child: TextField(
+                      
+                              controller: _commentControllerTextEditingController,
+                            
+                              focusNode: commentFocusNode,
+                            
+                              maxLines: null,
+                            
+                              decoration: InputDecoration(
+                            
+                                hintText: replyingTo != null
+                            
+                                    ? 'Écrire une réponse...'
+                            
+                                    : 'Ajouter un commentaire...',
+                            
+                              ),
+                            
+                            ),
+                         
+                          ),
 
-                          comments.insert(0, newComment);
+                          IconButton(
+                          
+                            icon: const Icon(Icons.send),
+                          
+                            onPressed: () async {
+                              
+                              print("Controller: ${_commentControllerTextEditingController.text}");
 
-                        });
+                              final content = _commentControllerTextEditingController.text.trim();
 
-                        _commentControllerTextEditingController.clear();
+                              if (content.isEmpty) {
+                                return;
+                              }
 
-                        }catch(e) {
 
-                          logger.e('Error adding comment: $e');
+                              try{
 
-                        }
+                                final newComment = await _commentService.addComment(
 
-                      },
+                                  videoId: widget.videoId,
 
-                    ),
-                  ],
-                ),
-              ),
+                                  content: content,
+                                  
+                              );
+
+                              if (!mounted) return;
+
+                              setState(() {
+
+                                comments.insert(0, newComment);
+
+                              });
+
+                              _commentControllerTextEditingController.clear();
+
+                              }catch(e) {
+
+                                logger.e('Error adding comment: $e');
+
+                              }
+                          
+                            },
+                         
+                          ),
+                       
+                        ],
+                     
+                      ),
+                   
+                    ],
+                 
+                  )
+                    
+              )
+            
             )
-          ],
+         
+          ]
+       
         ),
+     
       ),
+   
     );
+ 
   }
 }
