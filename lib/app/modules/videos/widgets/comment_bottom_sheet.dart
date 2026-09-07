@@ -242,20 +242,44 @@ String formatCommentDate(String? date) {
   
     });
 
-    _commentControllerTextEditingController.text = '@${comment['user']?['name'] ?? 'Utilisateur'} ';
-    
-    _commentControllerTextEditingController.selection = TextSelection.fromPosition(
-     
-      TextPosition(
-     
-        offset: _commentControllerTextEditingController.text.length,
-    
-      ),
-    
-    );
+    _commentControllerTextEditingController.clear();
 
     commentFocusNode.requestFocus();
-  
+  }
+
+  Future<void> deleteReply(Map<String, dynamic> reply) async {
+
+    print('Deleting reply: $reply');
+
+    final replyId = reply['id'];
+
+    try {
+     
+      await CommentService().deleteComment(replyId);
+
+    print('Reply deleted successfully: $replyId');
+
+      if (!mounted) return;
+
+      setState(() {
+        for (final comment in comments) {
+          final replies = comment['replies'];
+
+          if (replies is List) {
+            
+            print('Removing reply with ID: $replyId from comment ID: ${comment['id']}');
+          
+            replies.removeWhere(
+              (item) => item['id'] == replyId,
+            );
+
+            print('Updated replies for comment ID: ${comment['id']}: $replies');
+          }
+        }
+      });
+    } catch (e) {
+      logger.e('Error deleting reply: $e');
+    }
   }
 
   @override
@@ -307,110 +331,13 @@ String formatCommentDate(String? date) {
                       
                             final comment = comments[index];
                             
-                            final user = comment['user'];
+                            return buildComment(comment);
 
-                            final currentUserId = _authProvider.user.user?.id;
-
-                            final commentUserId = user?['id'];
-
-                            final bool isOwner = commentUserId == currentUserId;
-
-                            print("IsOwner: $isOwner, CommentUser: $commentUserId, CurrentUser: $currentUserId");
-
-                            return ListTile(      
-
-                              leading: const CircleAvatar(child: Icon(Icons.person),),
-
-                              title: Text(user?['name'] ?? 'Utilisateur', style: const TextStyle(fontWeight: FontWeight.bold,),),  
-                              
-                              subtitle: Column(
-                               
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                               
-                                children: [
-                               
-                                  Text(
-                               
-                                    comment['comment'] ?? '',
-                               
-                                  ),
-                                
-                                  const SizedBox(height: 4),
-                                
-                                  Text(
-                                
-                                    formatCommentDate(comment['created_at']),
-                                
-                                    style: const TextStyle(
-                                
-                                      fontSize: 12,
-                                
-                                      color: Colors.grey,
-                                
-                                    ),
-                                
-                                  ),
-                                
-                                ],
-                             
-                              ),
-                              trailing: PopupMenuButton<String>(
-                                
-                                onSelected: (value) {
-                                 
-                                  switch (value) {
-                                 
-                                    case 'reply':
-                                  
-                                      replyToComment(comment);
-                                  
-                                      break;
-
-                                    case 'delete':
-                                   
-                                      confirmDeleteComment(comment);
-                                  
-                                      break;
-                                 
-                                  }
-                                
-                                },
-                                
-                                itemBuilder: (context) {
-                                
-                                  return [
-                                
-                                    const PopupMenuItem(
-                                
-                                      value: 'reply',
-                                
-                                      child: Text('Répondre'),
-                                
-                                    ),
-
-                                    if (isOwner)
-                                  
-                                      const PopupMenuItem(
-                                  
-                                        value: 'delete',
-                                  
-                                        child: Text('Supprimer'),
-                                  
-                                      ),
-                                 
-                                  ];
-                               
-                                },
-                             
-                              ),
-
-                            );
-
-                          },
-
-              ),
-                        
-            ),
+                          }
+                 
+                  ),
+                            
+                ),
 
             // Champ de saisie
             SafeArea(
@@ -507,41 +434,76 @@ String formatCommentDate(String? date) {
                           
                             onPressed: () async {
                               
-                              print("Controller: ${_commentControllerTextEditingController.text}");
-
                               final content = _commentControllerTextEditingController.text.trim();
 
                               if (content.isEmpty) {
+                               
                                 return;
+                              
                               }
 
-
-                              try{
-
-                                final newComment = await _commentService.addComment(
-
+                              try {
+                                
+                                final newComment =
+                                    await CommentService().addComment(
+                                 
                                   videoId: widget.videoId,
-
+                                
                                   content: content,
+                                
+                                  parentId: replyingTo?['id'],
+                                );
+
+                                if (!mounted) return;
+
+                                setState(() {
+                                 
+                                  if (replyingTo != null) {
+
+                                    final parent = comments.firstWhere(
+                                   
+                                      (comment) => comment['id'] == replyingTo!['id'],
                                   
-                              );
+                                    );
 
-                              if (!mounted) return;
+                                    parent['replies'] ??= [];
 
-                              setState(() {
+                                    parent['replies'].insert(
+                                    
+                                      0,
+                                    
+                                      newComment,
+                                   
+                                    );
 
-                                comments.insert(0, newComment);
+                                  } else {
 
-                              });
+                                    comments.insert(
+                                   
+                                      0,
+                                   
+                                      newComment,
+                                 
+                                    );
+                                
+                                  }
 
-                              _commentControllerTextEditingController.clear();
+                                  replyingTo = null;
+                               
+                                });
 
-                              }catch(e) {
+                                _commentControllerTextEditingController.clear();
 
-                                logger.e('Error adding comment: $e');
-
+                              } catch (e) {
+                               
+                                logger.e(
+                                  
+                                  'Error adding comment/reply: $e',
+                              
+                                );
+                             
                               }
-                          
+                           
                             },
                          
                           ),
@@ -565,6 +527,219 @@ String formatCommentDate(String? date) {
       ),
    
     );
+ 
+  }
+
+  Widget buildComment(
+    Map<String, dynamic> comment,
+  ) {
+    final user = comment['user'];
+
+    final replies = (comment['replies'] ?? []) as List<dynamic>;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+
+        ListTile(
+          leading: const CircleAvatar(
+            child: Icon(Icons.person),
+          ),
+
+          title: Text(
+           
+            user?['name'] ?? 'Utilisateur',
+            
+            style: const TextStyle(
+             
+              fontWeight: FontWeight.bold,
+          
+            ),
+         
+          ),
+
+          subtitle: Text(
+         
+            comment['comment'] ?? '',
+         
+          ),
+
+          trailing: PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'reply') {
+                replyToComment(comment);
+              }
+
+              if (value == 'delete') {
+                confirmDeleteComment(comment);
+              }
+            },
+
+            itemBuilder: (context) {
+              final currentUserId =
+                  _authProvider.user.user?.id;
+
+              final commentUserId =
+                  user?['id'];
+
+              final isOwner = commentUserId == currentUserId;
+
+              return [
+                const PopupMenuItem(
+                  value: 'reply',
+                  child: Text('Répondre'),
+                ),
+
+                if (isOwner)
+                  const PopupMenuItem(
+                    value: 'delete',
+                    child: Text('Supprimer'),
+                  ),
+              ];
+            },
+          ),
+        ),
+
+        if (replies.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(
+              left: 56,
+            ),
+            child: Column(
+              children: replies.map<Widget>(
+                (reply) {
+                  return buildReply(reply);
+                },
+              ).toList(),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget buildReply(
+    Map<String, dynamic> reply,
+  ) {
+    final user = reply['user'];
+
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+
+      leading: const CircleAvatar(
+        radius: 16,
+        child: Icon(
+          Icons.person,
+          size: 18,
+        ),
+      ),
+
+      title: Text(
+        user?['name'] ?? 'Utilisateur',
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+        ),
+      ),
+
+      subtitle: Text(
+        reply['comment'] ?? '',
+      ),
+
+      trailing: PopupMenuButton<String>(
+        onSelected: (value) {
+          if (value == 'reply') {
+            replyToComment(reply);
+          }
+
+          if (value == 'delete') {
+            confirmDeleteReply(reply);
+          }
+        },
+
+        itemBuilder: (context) {
+          final currentUserId =
+              _authProvider.user.user?.id;
+
+          final replyUserId =
+              user?['id'];
+
+          final isOwner =
+              replyUserId == currentUserId;
+
+          return [
+            const PopupMenuItem(
+              value: 'reply',
+              child: Text('Répondre'),
+            ),
+
+            if (isOwner)
+              const PopupMenuItem(
+                value: 'delete',
+                child: Text('Supprimer'),
+              ),
+          ];
+        },
+      ),
+    );
+  }
+
+  Future<void> confirmDeleteReply( Map<String, dynamic> reply) async {
+   
+    final confirmed = await showDialog<bool>(
+     
+      context: context,
+     
+      builder: (context) {
+     
+        return AlertDialog(
+     
+          title: const Text('Supprimer la réponse ?'),
+     
+          content: const Text(
+     
+            'Cette action est irréversible.',
+     
+          ),
+     
+          actions: [
+     
+            TextButton(
+     
+              onPressed: () {
+     
+                Navigator.pop(context, false);
+     
+              },
+     
+              child: const Text('Annuler'),
+     
+            ),
+     
+            TextButton(
+     
+              onPressed: () {
+     
+                Navigator.pop(context, true);
+     
+              },
+     
+              child: const Text('Supprimer'),
+     
+            ),
+     
+          ],
+     
+        );
+     
+      },
+   
+    );
+
+    if (confirmed == true) {
+      
+      await deleteReply(reply);
+   
+    }
  
   }
 }

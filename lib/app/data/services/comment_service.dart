@@ -26,14 +26,26 @@ class CommentService {
   Future<dynamic> addComment({
     required int videoId,
     required String content,
+    int? parentId,
   }) async {
     print("Adding comment: $content");
-    return await _apiProvider.post(
+    
+    final response =  await _apiProvider.post(
+     
       '$baseUrl/videos/$videoId/comments',
+    
       {
+     
         "comment": content,
+       
+        if (parentId != null) 'parent_id': parentId,
+   
       },
+  
     );
+    
+    return response;
+ 
   }
 
   Future<void> deleteComment(int commentId) async {
