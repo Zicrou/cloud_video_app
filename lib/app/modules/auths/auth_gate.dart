@@ -1,5 +1,6 @@
 import 'package:cloud_video_app/app/data/providers/auth_providers.dart';
 import 'package:cloud_video_app/app/data/services/auth_services.dart';
+import 'package:cloud_video_app/app/data/services/deep_link_service.dart';
 import 'package:cloud_video_app/app/modules/auths/login/login_screen.dart';
 import 'package:cloud_video_app/app/modules/videos/videos/video_list_screen.dart';
 import 'package:flutter/material.dart';
@@ -26,10 +27,10 @@ class _AuthGateState extends State<AuthGate> {
   }
 
   Future<bool> checkAuthentication() async {
-    final token = await _authProvider.authToken;
+    
+    final token = _authProvider.authToken;
 
-    print("Token: $token");
-
+  
     if (token == null || token.isEmpty) {
       return false;
     }

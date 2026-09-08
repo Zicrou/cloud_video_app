@@ -3,7 +3,7 @@ import 'package:cloud_video_app/app/core/values/dimens.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-errorMessage(String textMsg) {
+dynamic errorMessage(String textMsg) {
   Get.snackbar(
     'Message',
     textMsg,
@@ -15,7 +15,7 @@ errorMessage(String textMsg) {
   );
 }
 
-goodMessage(String textMsg) {
+dynamic goodMessage(String textMsg) {
   Get.snackbar(
     'Message',
     textMsg,
@@ -30,27 +30,4 @@ goodMessage(String textMsg) {
     ),
   );
 
-  // Get.snackbar(
-  //   "",
-  //   "",
-  //   titleText: Text(
-  //     "Failed",
-  //     style: TextStyle(
-  //       fontSize: 20,
-  //       color: Colors.white,
-  //       fontWeight: FontWeight.bold,
-  //     ),
-  //   ),
-  //   messageText: Text(
-  //     textMsg,
-  //     style: TextStyle(
-  //       fontSize: 18, // 🔹 bigger font for message
-  //       color: AppColors.whiteColor,
-  //     ),
-  //   ),
-  //   backgroundColor: AppColors.errorColor,
-  //   snackPosition: SnackPosition.TOP,
-  //   duration: Duration(seconds: 3),
-  //   icon: Icon(Icons.error_outline, color: AppColors.whiteColor, size: 20),
-  // );
 }

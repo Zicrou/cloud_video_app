@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class SignupScreen extends GetView<AuthController> {
+  const SignupScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -146,10 +148,7 @@ class SignupScreen extends GetView<AuthController> {
                         )
                       : ElevatedButton(
                           onPressed: () => controller.signup(),
-                          child: Text(
-                            "Sign Up",
-                            style: TextStyle(fontSize: 18),
-                          ),
+                          
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color.fromARGB(255, 0, 173, 253),
                             foregroundColor: Colors.white,
@@ -158,6 +157,12 @@ class SignupScreen extends GetView<AuthController> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
+
+                          child: Text(
+                            "Sign Up",
+                            style: TextStyle(fontSize: 18),
+                          ),
+                          
                         ),
                 ),
                 TextButton(

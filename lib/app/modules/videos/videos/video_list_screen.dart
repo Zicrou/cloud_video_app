@@ -1,5 +1,3 @@
-import 'package:cloud_video_app/app/data/services/api_service.dart';
-import 'package:cloud_video_app/app/data/services/comment_service.dart';
 import 'package:cloud_video_app/app/data/services/video_service.dart';
 import 'package:cloud_video_app/app/modules/auths/auth_controller.dart';
 import 'package:cloud_video_app/app/modules/auths/login/login_screen.dart';
@@ -18,7 +16,7 @@ class _VideoListScreenState extends State<VideoListScreen> {
   List videos = [];
   bool isLoading = true;
   
-  final auth_controller = Get.find<AuthController>();
+  final _authController = Get.find<AuthController>();
   final _videoServices = Get.put(VideoService());
 
   @override
@@ -86,7 +84,7 @@ class _VideoListScreenState extends State<VideoListScreen> {
                         child: Text("Se déconnecter"),
                         onPressed: () async {
                           Navigator.of(context).pop(); // Close the dialog
-                          await auth_controller.logout();
+                          await _authController.logout();
                           Get.to(() => LoginScreen());
                         },
                       ),

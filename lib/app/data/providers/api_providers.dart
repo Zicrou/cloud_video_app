@@ -6,7 +6,6 @@ import 'package:cloud_video_app/app/core/interceptors/api_interceptors.dart';
 import 'package:cloud_video_app/app/utils/no_internet_snack.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart' hide FormData, Response;
-import 'package:get_storage/get_storage.dart';
 import 'package:logger/logger.dart';
 
 final logger = Logger();
@@ -65,7 +64,7 @@ class ApiProvider {
   }
 
   Future<dynamic> post(String api, dynamic payload) async {
-    logger.i("Url : ${api}");
+    logger.i("Url : $api");
     return requestWrapper(() async => await _dio.post(api, data: payload));
   }
 
@@ -157,7 +156,7 @@ class ApiProvider {
     );
   }
 
-  dynamic _processResponse(response) {
+  dynamic _processResponse(dynamic response) {
     if (response?.statusCode != null) {
       switch (response.statusCode) {
         case 200:

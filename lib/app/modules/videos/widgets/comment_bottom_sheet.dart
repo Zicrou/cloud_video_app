@@ -249,15 +249,11 @@ String formatCommentDate(String? date) {
 
   Future<void> deleteReply(Map<String, dynamic> reply) async {
 
-    print('Deleting reply: $reply');
-
     final replyId = reply['id'];
 
     try {
      
-      await CommentService().deleteComment(replyId);
-
-    print('Reply deleted successfully: $replyId');
+      await _commentService.deleteComment(replyId);
 
       if (!mounted) return;
 
@@ -267,13 +263,10 @@ String formatCommentDate(String? date) {
 
           if (replies is List) {
             
-            print('Removing reply with ID: $replyId from comment ID: ${comment['id']}');
-          
             replies.removeWhere(
               (item) => item['id'] == replyId,
             );
 
-            print('Updated replies for comment ID: ${comment['id']}: $replies');
           }
         }
       });
@@ -445,7 +438,7 @@ String formatCommentDate(String? date) {
                               try {
                                 
                                 final newComment =
-                                    await CommentService().addComment(
+                                    await _commentService.addComment(
                                  
                                   videoId: widget.videoId,
                                 

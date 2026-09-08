@@ -17,9 +17,7 @@ class AuthRepositories {
 
   Future<UserInfo> login(String email, String password) async {
     try {
-      print(
-        'Auth Repositories: login with email => $email and password => $password',
-      );
+    
       final response = await _apiProvider.postN(
         loginEndpoint,
         {'email': email, 'password': password},
@@ -39,8 +37,8 @@ class AuthRepositories {
       _authProvider.isAuthenticated = true;
       _authProvider.authToken = userInfo.token!;
       _authProvider.user = userInfo;
-      print('authToken: ${_authProvider.authToken}');
-      print("userInfo from Repositories: ${userInfo.toString()}");
+      // print('authToken: ${_authProvider.authToken}');
+      // print("userInfo from Repositories: ${userInfo.toString()}");
       
       return userInfo;
     } on BadRequestException {
@@ -54,9 +52,7 @@ class AuthRepositories {
     String password,
   ) async {
     try {
-      print(
-        'Auth Repositories: login with email => $email and password => $password',
-      );
+    
       final response = await _apiProvider.postN(
         registerEndPoint,
         {'name': name, 'email': email, 'password': password},
@@ -70,8 +66,8 @@ class AuthRepositories {
       }
       _authProvider.isAuthenticated = true;
       _authProvider.authToken = userRegister.token!;
-      // print('authToken: ${_authProvider.authToken}');
-      // print("userRegister from Repositories: ${userRegister.toString()}");
+      logger.i('authToken: ${_authProvider.authToken}');
+      logger.i("userRegister from Repositories: ${userRegister.toString()}");
       return userRegister;
     } on BadRequestException {
       rethrow;
@@ -80,14 +76,13 @@ class AuthRepositories {
 
   Future<dynamic> signout() async {
     try {
-      print('Auth Repositories: signing out ${_authProvider.authToken}');
-      final response = await _apiProvider.post(
+      // print('Auth Repositories: signing out ${_authProvider.authToken}');
+      await _apiProvider.post(
         signOutEndpoint,
         Options(
           headers: {'Authorization': 'Bearer ${_authProvider.authToken}'},
         ),
       );
-      print("Response from Auth Repositories: ${response}");
       _authProvider.reset();
       if (!_authProvider.isAuthenticated) {
         return true;
@@ -100,14 +95,10 @@ class AuthRepositories {
   }
 
   Future<User> getCurrentUser() async {
-    final path = '$baseUrl/user';
-    print("Path to get getCurrentUser: $path");
+    final path = '$apiBaseUrl/user';
     final response = await _apiProvider.get(path);
 
-    print('CURRENT USER RESPONSE: $response');
-    
-    print('CURRENT USER TYPE: ${response.runtimeType}');
-
+    // print('CURRENT USER RESPONSE: $response');
 
     return User.fromJson(response as Map<String, dynamic>);
   }

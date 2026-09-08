@@ -12,17 +12,19 @@ class UserRegister {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.user != null) {
-      data['user'] = this.user!.toJson();
+    // ignore: prefer_collection_literals
+    final Map<String, dynamic> data = Map<String, dynamic>();
+    if (user != null) {
+      data['user'] = user!.toJson();
     }
-    data['token'] = this.token;
+    data['token'] = token;
     return data;
   }
 
   @override
   String toString() {
-    // TODO: implement toString
-    return "User: ${user}, Token: ${token}";
+   
+    return "User: $user, Token: $token";
+
   }
 }

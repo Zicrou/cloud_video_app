@@ -1,4 +1,3 @@
-import 'package:cloud_video_app/app/data/providers/auth_providers.dart';
 import 'package:cloud_video_app/app/modules/auths/auth_controller.dart';
 import 'package:cloud_video_app/app/modules/auths/signup/signup_screen.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +8,8 @@ import 'package:logger/logger.dart';
 final logger = Logger();
 
 class LoginScreen extends GetView<AuthController> {
+  
+  const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -113,10 +114,7 @@ class LoginScreen extends GetView<AuthController> {
                         )
                       : ElevatedButton(
                           onPressed: () => controller.login(),
-                          child: Text(
-                            "Se connecter",
-                            style: TextStyle(fontSize: 18),
-                          ),
+                          
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color.fromARGB(255, 0, 173, 253),
                             foregroundColor: Colors.white,
@@ -124,6 +122,10 @@ class LoginScreen extends GetView<AuthController> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
+                          ),
+                          child: Text(
+                            "Se connecter",
+                            style: TextStyle(fontSize: 18),
                           ),
                         ),
                 ),

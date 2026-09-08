@@ -7,7 +7,7 @@ class BadRequestException extends AppException {
   BadRequestException([String? message, String? url])
     : super(message, 'Bad Request', url);
 
-  get errorList => jsonDecode(message!)['message'];
+  dynamic get errorList => jsonDecode(message!)['message'];
 
   @override
   String toString() {

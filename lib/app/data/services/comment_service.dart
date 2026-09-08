@@ -1,6 +1,5 @@
 import 'package:cloud_video_app/app/core/values/endpoints.dart';
 import 'package:cloud_video_app/app/data/providers/api_providers.dart';
-import 'package:cloud_video_app/app/data/providers/auth_providers.dart';
 import 'package:get/get.dart';
 
 
@@ -13,12 +12,9 @@ class CommentService {
     
     final data = await _apiProvider.get(
       
-      '$baseUrl/videos/$videoId/comments',
+      '$apiBaseUrl/videos/$videoId/comments',
     );
-    print('COMMENTS DATA: $data');
   
-    print('COMMENTS TYPE: ${data.runtimeType}');
-
     return data as List<dynamic>;
 
   }
@@ -28,11 +24,10 @@ class CommentService {
     required String content,
     int? parentId,
   }) async {
-    print("Adding comment: $content");
     
     final response =  await _apiProvider.post(
      
-      '$baseUrl/videos/$videoId/comments',
+      '$apiBaseUrl/videos/$videoId/comments',
     
       {
      
@@ -52,7 +47,7 @@ class CommentService {
     
     await _apiProvider.delete(
     
-      '$baseUrl/comments/$commentId',
+      '$apiBaseUrl/comments/$commentId',
    
     );
   

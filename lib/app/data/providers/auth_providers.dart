@@ -1,4 +1,3 @@
-import 'package:cloud_video_app/app/data/models/user.dart';
 import 'package:cloud_video_app/app/data/models/user_register.dart';
 import 'package:cloud_video_app/app/data/providers/storage_providers.dart';
 import 'package:logger/logger.dart';
@@ -41,9 +40,9 @@ class AuthProvider extends GetxService {
     _storageProvider.authToken = value;
   }
 
-  get refreshToken => _refreshToken.value;
+  dynamic get refreshToken => _refreshToken.value;
 
-  set refreshToken(value) {
+  set refreshToken(dynamic value) {
     _refreshToken.value = value;
     _storageProvider.refreshToken = value;
   }
@@ -63,12 +62,12 @@ class AuthProvider extends GetxService {
     }
   }
 
-  set isAuthenticated(value) {
+   set isAuthenticated(dynamic value) {
     _isAuthenticated.value = value;
     _storageProvider.authStatus = value;
   }
 
-  reset() {
+  dynamic reset() {
     isAuthenticated = false;
     authToken = '';
     //user = UserInfo();

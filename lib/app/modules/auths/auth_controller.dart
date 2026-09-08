@@ -1,14 +1,10 @@
-import 'dart:convert';
-
 import 'package:cloud_video_app/app/data/providers/auth_providers.dart';
-import 'package:cloud_video_app/app/data/repositories/auth_repositories.dart';
 import 'package:cloud_video_app/app/data/services/auth_services.dart';
 import 'package:cloud_video_app/app/modules/auths/login/login_screen.dart';
 import 'package:cloud_video_app/app/modules/videos/videos/video_list_screen.dart';
 import 'package:cloud_video_app/app/utils/messages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 
 class AuthController extends GetxController {
   final AuthProvider authProvider = Get.find<AuthProvider>();
@@ -18,7 +14,7 @@ class AuthController extends GetxController {
   final _isLoading = false.obs;
   
 
-  get isLoading => _isLoading.value;
+  dynamic get isLoading => _isLoading.value;
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
   var nameController = TextEditingController();
@@ -31,11 +27,8 @@ class AuthController extends GetxController {
 
 
   void login() async {
-    print("LoginFormKey: $loginFormKey");
 
     try {
-
-      print("conecting..");
 
       _isLoading.value = true;
 
@@ -48,9 +41,7 @@ class AuthController extends GetxController {
         String password = passwordController.text.trim();
 
         // Call the post Api method to send data
-        var userInfo = await authServices.login(email: email, password: password);
-
-        print("Response Auth Controller: ${userInfo}");
+        await authServices.login(email: email, password: password);
 
         emailController.clear();
         
@@ -65,8 +56,6 @@ class AuthController extends GetxController {
      
       errorMessage("Impossible de se connecter");
      
-      print("Error: ${e}");
-   
     } finally {
    
       _isLoading.value = false;
@@ -82,11 +71,9 @@ class AuthController extends GetxController {
     try {
       if (signupFormKey.currentState!.validate()) {
         //signupFormKey.currentState!.save();
-        print("Signin in signinFormKey : ${signupFormKey}");
         _isLoading.value = true;
-        var userRegistred =  authServices.register(name: name, email: email, password: password);
+        await authServices.register(name: name, email: email, password: password);
         
-        print("Response userRegistered: $userRegistred");
         // authProvider.userRegister =  await userRegistred;
         Get.offAll(() => LoginScreen());
 

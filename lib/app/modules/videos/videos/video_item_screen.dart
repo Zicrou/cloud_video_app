@@ -1,13 +1,10 @@
+import 'package:cloud_video_app/app/core/values/endpoints.dart';
 import 'package:cloud_video_app/app/data/providers/auth_providers.dart';
-import 'package:cloud_video_app/app/data/services/api_service.dart';
-import 'package:cloud_video_app/app/data/services/auth_services.dart' hide logger;
-import 'package:cloud_video_app/app/data/services/comment_service.dart';
 import 'package:cloud_video_app/app/data/services/like_service.dart';
-import 'package:cloud_video_app/app/data/services/video_service.dart';
+import 'package:cloud_video_app/app/data/services/share_service.dart';
 import 'package:cloud_video_app/app/modules/videos/widgets/comment_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/route_manager.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoItemScreen extends StatefulWidget {
@@ -35,6 +32,8 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
   final AuthProvider authProvider = Get.find<AuthProvider>();
 
   final _likeService = Get.put(LikeService());
+
+  final ShareService _shareService = ShareService();
 
   @override
   void initState() {
@@ -96,12 +95,6 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
     try{
 
       final data = await _likeService.toggleLike(videoId);
-
-      print("Response: $data");
-
-      print("Liked: ${data['liked']}");
-      
-      print("Likes count: ${data['likes_count']}");
 
       if (!mounted) return;
 
@@ -207,8 +200,6 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
                 IconButton(
                   onPressed: () async {
                     
-                    print("Video id: ${widget.video['id']}");
-                    
                     await toggleLike(widget.video['id']);
                   
                   },
@@ -258,11 +249,58 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
                   "${widget.video['comments_count']}",
                   style: const TextStyle(color: Colors.white),
                 ),
+
+                IconButton(
+                  onPressed: () async {
+                    
+                    final videoId = widget.video['id'];
+
+                    final videoUrl = widget.video['url'] as String;
+
+                    final shareUrl = '$appBaseUrl/videos/$videoId';
+
+                    if (videoUrl is! String || videoUrl.isEmpty) {
+                      
+                      logger.e('Video URL is missing or invalid');
+                      
+                      return;
+                    
+                    }
+
+                    await _shareService.shareVideo(
+                     
+                      videoId: videoId,
+
+                      title: widget.video['title'] ?? 'Video',
+                    
+                      videoUrl: shareUrl,
+                   
+                    );
+                 
+                  },
+                 
+                  icon: const Icon(
+                 
+                    Icons.share,
+                 
+                    color: Colors.white,
+                 
+                    size: 36,
+                 
+                  ),
+                
+                ),
+              
               ],
+            
             ),
+          
           ),
+       
         ],
+     
       ),
+   
     );
 
   }

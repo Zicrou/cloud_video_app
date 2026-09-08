@@ -33,17 +33,17 @@ class TokenFromRequest {
     updatedAt = json['updated_at'];
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['tokenable_type'] = this.tokenableType;
-    data['tokenable_id'] = this.tokenableId;
-    data['name'] = this.name;
-    data['abilities'] = this.abilities;
-    data['last_used_at'] = this.lastUsedAt;
-    data['expires_at'] = this.expiresAt;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
-    return data;
-  }
+  // Map<String, dynamic> toJson() {
+  //   final Map<String, dynamic> data = new Map<String, dynamic>();
+  //   data['id'] = this.id;
+  //   data['tokenable_type'] = this.tokenableType;
+  //   data['tokenable_id'] = this.tokenableId;
+  //   data['name'] = this.name;
+  //   data['abilities'] = this.abilities;
+  //   data['last_used_at'] = this.lastUsedAt;
+  //   data['expires_at'] = this.expiresAt;
+  //   data['created_at'] = this.createdAt;
+  //   data['updated_at'] = this.updatedAt;
+  //   return data;
+  // }
 }
