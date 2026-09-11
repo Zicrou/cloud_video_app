@@ -1,6 +1,8 @@
+import 'package:cloud_video_app/app/data/services/follow_service.dart';
 import 'package:cloud_video_app/app/data/services/video_service.dart';
 import 'package:cloud_video_app/app/modules/auths/auth_controller.dart';
 import 'package:cloud_video_app/app/modules/auths/login/login_screen.dart';
+import 'package:cloud_video_app/app/modules/videos/videos/new_video/video_upload_screen.dart';
 import 'package:cloud_video_app/app/modules/videos/videos/video_item_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -18,15 +20,27 @@ class _VideoListScreenState extends State<VideoListScreen> {
   
   final _authController = Get.find<AuthController>();
   final _videoServices = Get.put(VideoService());
+  
+  final followService = FollowService();
+
+
 
   @override
   void initState() {
     super.initState();
+
     fetchVideos();
   }
 
-  void fetchVideos() async {
+  Future<void> fetchVideos() async {
+    setState(() {
+      isLoading = true;
+    });
+
     final data = await _videoServices.getVideos();
+
+    if (!mounted) return;
+
     setState(() {
       videos = data;
       isLoading = false;
@@ -51,7 +65,7 @@ class _VideoListScreenState extends State<VideoListScreen> {
 
       appBar: AppBar(
         title: Text(
-          "Liste des ventes",
+          "Liste des videos",
           style: TextStyle(
             fontSize: 32,
             fontFamily: 'avenir',
@@ -78,6 +92,7 @@ class _VideoListScreenState extends State<VideoListScreen> {
                         child: Text("Annuler"),
                         onPressed: () {
                           Navigator.of(context).pop();
+                          
                         },
                       ),
                       TextButton(
@@ -88,12 +103,14 @@ class _VideoListScreenState extends State<VideoListScreen> {
                           Get.to(() => LoginScreen());
                         },
                       ),
+                      
                     ],
                   );
                 },
               );
             },
           ),
+          
         ],
       ),
       backgroundColor: Color(0xFFF5F5F5),
@@ -131,7 +148,19 @@ class _VideoListScreenState extends State<VideoListScreen> {
 
           },
 
-        )
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            final uploaded = await Get.to(
+              () => VideoUploadScreen(),
+            );
+
+            if (uploaded == true) {
+              fetchVideos();
+            }
+          },
+          child: const Icon(Icons.add),
+        ),
 
       );
   }

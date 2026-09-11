@@ -2,6 +2,7 @@ import 'package:cloud_video_app/app/core/values/endpoints.dart';
 import 'package:cloud_video_app/app/data/providers/auth_providers.dart';
 import 'package:cloud_video_app/app/data/services/like_service.dart';
 import 'package:cloud_video_app/app/data/services/share_service.dart';
+import 'package:cloud_video_app/app/modules/users/user_profile_screen.dart' hide logger;
 import 'package:cloud_video_app/app/modules/videos/widgets/comment_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -197,6 +198,20 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
             bottom: 120,
             child: Column(
               children: [
+                IconButton(
+                  onPressed: () async {
+                    
+                    Get.to(() => const UserProfileScreen(userId: 5));
+                  
+                  },
+                  
+                  icon: Icon(
+                    Icons.person,
+                    color: Colors.white,
+                    size: 36,
+                  ),
+                
+                ),
                 IconButton(
                   onPressed: () async {
                     
