@@ -3,6 +3,7 @@ import 'package:cloud_video_app/app/data/providers/auth_providers.dart';
 import 'package:cloud_video_app/app/data/services/like_service.dart';
 import 'package:cloud_video_app/app/data/services/share_service.dart';
 import 'package:cloud_video_app/app/modules/users/user_profile_screen.dart' hide logger;
+import 'package:cloud_video_app/app/modules/videos/videos/new_video/video_upload_screen.dart';
 import 'package:cloud_video_app/app/modules/videos/widgets/comment_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -14,7 +15,11 @@ class VideoItemScreen extends StatefulWidget {
 
   final bool isActive;
 
-  const VideoItemScreen({super.key, required this.video, required this.isActive});
+  final VoidCallback? onDelete;
+
+  final VoidCallback? onUpdated;
+
+  const VideoItemScreen({super.key, required this.video, required this.isActive, this.onDelete, this.onUpdated});
 
   @override
   State<VideoItemScreen> createState() => _VideoItemScreenState();
@@ -270,11 +275,11 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
                     
                     final videoId = widget.video['id'];
 
-                    final videoUrl = widget.video['url'] as String;
+                    final videoUrl = widget.video['url']?.toString();
 
                     final shareUrl = '$appBaseUrl/videos/$videoId';
 
-                    if (videoUrl is! String || videoUrl.isEmpty) {
+                    if (videoUrl == null || videoUrl.isEmpty) {
                       
                       logger.e('Video URL is missing or invalid');
                       
@@ -305,12 +310,56 @@ class _VideoItemScreenState extends State<VideoItemScreen> {
                   ),
                 
                 ),
-              
+
+                if (widget.onDelete != null && authProvider.user.user?.id == widget.video['user_id'])
+                  PopupMenuButton<String>(
+                    icon: const Icon(
+                      Icons.more_vert,
+                      color: Colors.white,
+                    ),
+                    onSelected: (value) async {
+                      if (value == 'edit') {
+                        final updated = await Get.to(
+                          () => VideoUploadScreen(
+                            video: widget.video,
+                          ),
+                        );
+
+                        if (updated == true) {
+                          widget.onUpdated?.call();
+                        }
+                      }
+
+                      if (value == 'delete') {
+                        widget.onDelete!();
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 'edit',
+                        child: Text('Modifier'),
+                      ),
+                      const PopupMenuItem(
+                        value: 'delete',
+                        child: Text('Supprimer'),
+                      ),
+                    ],
+                  ),
               ],
-            
             ),
           
           ),
+            Positioned(
+              bottom: 10,
+              left: 30,
+              right: 25,
+              child: Text(
+                  widget.video['title'] ?? '',
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
+            
+          
        
         ],
      

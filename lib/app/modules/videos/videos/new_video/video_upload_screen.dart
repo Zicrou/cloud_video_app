@@ -4,17 +4,24 @@ import 'package:get/get.dart';
 
 
 class VideoUploadScreen extends StatelessWidget {
-  VideoUploadScreen({super.key});
+  final Map<String, dynamic>? video;
 
-  final VideoUploadController controller = Get.put(
-    VideoUploadController(),
-  );
+  VideoUploadScreen({
+    super.key,
+    this.video,
+  });
 
   final TextEditingController titleController =
       TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(
+      VideoUploadController(
+        video: video,
+      ),
+    );
+    titleController.text = controller.title.value;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Publier une vidéo'),

@@ -59,6 +59,52 @@ class _VideoListScreenState extends State<VideoListScreen> {
 
   }
 
+  Future<void> deleteVideo(int videoId) async {
+    final confirmed = await Get.dialog<bool>(
+      AlertDialog(
+        title: const Text('Supprimer la vidéo'),
+        content: const Text(
+          'Voulez-vous vraiment supprimer cette vidéo ?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () => Get.back(result: true),
+            child: const Text('Supprimer'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) {
+      return;
+    }
+
+    try {
+      await _videoServices.deleteVideo(videoId);
+
+      Get.snackbar(
+        'Succès',
+        'Vidéo supprimée.',
+      );
+
+      await fetchVideos();
+    } catch (e, s) {
+      logger.e(
+        'Delete video error',
+        error: e,
+        stackTrace: s,
+      );
+
+      Get.snackbar(
+        'Erreur',
+        'Impossible de supprimer la vidéo.',
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -139,11 +185,12 @@ class _VideoListScreenState extends State<VideoListScreen> {
           itemBuilder: (context, index) {
 
             return VideoItemScreen(
-
               video: videos[index],
-
               isActive: index == currentIndex,
-
+              onDelete: () => deleteVideo(
+                videos[index]['id'],
+              ),
+              onUpdated: fetchVideos,
             );
 
           },

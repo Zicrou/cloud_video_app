@@ -97,9 +97,11 @@ class ApiProvider {
 
   Future<dynamic> putFormData(
     String api,
-    Map<String, dynamic> payloadObj,
-  ) async {
-    var formData = FormData.fromMap(payloadObj);
+    Map<String, dynamic> payloadObj, {
+    ProgressCallback? onSendProgress,
+  }) async {
+    final formData = FormData.fromMap(payloadObj);
+
     return requestWrapper(
       () async => await _dio
           .put(
@@ -110,6 +112,7 @@ class ApiProvider {
               validateStatus: (status) => true,
               contentType: "multipart/form-data",
             ),
+            onSendProgress: onSendProgress,
           )
           .timeout(timeOutDuration),
     );

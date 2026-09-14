@@ -21,7 +21,7 @@ class AuthProvider extends GetxService {
   
   final _refreshToken = ''.obs;
   
-  final _userId = ''.obs;
+  final userId = ''.obs;
   
   final deviceId = ''.obs;
   
@@ -58,7 +58,7 @@ class AuthProvider extends GetxService {
     logger.i('userId: ${user.user}');
 
     if (user.user?.id != null) {
-      _userId.value = user.user!.id.toString();
+      userId.value = user.user!.id.toString();
     }
   }
 

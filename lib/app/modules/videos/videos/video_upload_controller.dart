@@ -19,6 +19,20 @@ class VideoUploadController extends GetxController {
 
   final ImagePicker _picker = ImagePicker();
 
+  final Map<String, dynamic>? video;
+
+  VideoUploadController({
+    this.video,
+  });
+
+  @override
+  void onInit() {
+    super.onInit();
+
+    if (video != null) {
+      title.value = video!['title']?.toString() ?? '';
+    }
+  }
 
   Future<void> pickVideo() async {
     final pickedFile = await _picker.pickVideo(
@@ -31,9 +45,9 @@ class VideoUploadController extends GetxController {
   }
 
   Future<void> uploadVideo() async {
-    final video = selectedVideo.value;
+    final editingVideo = video;
 
-    if (video == null) {
+    if (editingVideo == null && selectedVideo.value == null) {
       Get.snackbar(
         'Erreur',
         'Veuillez sélectionner une vidéo.',
@@ -53,41 +67,62 @@ class VideoUploadController extends GetxController {
       isUploading.value = true;
       uploadProgress.value = 0;
 
-      final result = await _uploadService.uploadVideo(
-      title: title.value.trim(),
-      videoFile: video,
-      onProgress: (sent, total) {
-        if (total > 0) {
-          uploadProgress.value = sent / total;
-        }
-      },
-    );
+      if (editingVideo == null) {
+        // Création
+        final result = await _uploadService.uploadVideo(
+          title: title.value.trim(),
+          videoFile: selectedVideo.value!,
+          onProgress: (sent, total) {
+            if (total > 0) {
+              uploadProgress.value = sent / total;
+            }
+          },
+        );
 
-    Get.snackbar(
-      'Succès',
-      'Vidéo publiée avec succès.',
-    );
+        logger.d(result);
+      } else {
+        // Modification
+        final videoId = editingVideo['id'];
 
-    logger.d(result);
+        final result = await _uploadService.updateVideo(
+          videoId: videoId as int,
+          title: title.value.trim(),
+          videoFile: selectedVideo.value,
+          onProgress: (sent, total) {
+            if (total > 0) {
+              uploadProgress.value = sent / total;
+            }
+          },
+        );
 
-    logger.d('AVANT retour');
-    logger.d('Route actuelle : ${Get.currentRoute}');
-    logger.d('Route précédente : ${Get.previousRoute}');
-    logger.d('Can pop navigator: ${Navigator.of(Get.context!).canPop()}');
+        logger.d(result);
+      }
+      logger.d('Current route: ${Get.currentRoute}');
+      logger.d('Previous route: ${Get.previousRoute}');
+      logger.d(
+        'Can pop: ${Navigator.of(Get.context!).canPop()}',
+      );  
 
-    Navigator.of(Get.context!).pop(true);
+      Get.snackbar(
+        'Succès',
+        editingVideo == null
+            ? 'Vidéo publiée avec succès.'
+            : 'Vidéo modifiée avec succès.',
+      );
 
-    logger.d('APRÈS retour');
-    } catch (e, s) {
+      Navigator.of(Get.context!).pop(true);
+    } catch (error, stackTrace) {
       logger.e(
-        'Upload error',
-        error: e,
-        stackTrace: s,
+        'Video operation error',
+        error: error,
+        stackTrace: stackTrace,
       );
 
       Get.snackbar(
         'Erreur',
-        'Échec de l upload de la vidéo.',
+        editingVideo == null
+            ? 'Échec de la publication de la vidéo.'
+            : 'Échec de la modification de la vidéo.',
       );
     } finally {
       isUploading.value = false;

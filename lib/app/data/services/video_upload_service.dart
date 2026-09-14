@@ -28,4 +28,32 @@ class VideoUploadService {
 
     return response as Map<String, dynamic>;
   }
+
+  Future<Map<String, dynamic>> updateVideo({
+    required int videoId,
+    String? title,
+    File? videoFile,
+    required void Function(int sent, int total) onProgress,
+  }) async {
+    final payload = <String, dynamic>{};
+
+    if (title != null && title.trim().isNotEmpty) {
+      payload['title'] = title.trim();
+    }
+
+    if (videoFile != null) {
+      payload['video'] = await MultipartFile.fromFile(
+        videoFile.path,
+        filename: videoFile.path.split('/').last,
+      );
+    }
+
+    final response = await _apiProvider.putFormData(
+      '$apiBaseUrl/videos/$videoId',
+      payload,
+      onSendProgress: onProgress,
+    );
+
+    return response as Map<String, dynamic>;
+  }
 }

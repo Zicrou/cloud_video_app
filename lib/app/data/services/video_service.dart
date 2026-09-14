@@ -11,4 +11,12 @@ class VideoService {
     return data as List<dynamic>;
   }
 
+  Future<void> deleteVideo(int videoId) async {
+    await _apiProvider.delete(
+      '$apiBaseUrl/videos/$videoId',
+    );
+  }
+
+  
+
 }
